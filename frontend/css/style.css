@@ -151,3 +151,33 @@ button:hover{
     text-align: center;
     margin-top: 30px;
 }
+
+/* CHECKOUT PAGE */
+
+.checkout-section{
+    padding: 40px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.checkout-section h2{
+    margin-bottom: 20px;
+}
+
+#checkout-form{
+    width: 350px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#checkout-form input{
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+}
