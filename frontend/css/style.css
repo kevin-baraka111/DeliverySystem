@@ -181,3 +181,34 @@ button:hover{
 
     border-radius: 5px;
 }
+
+/* AUTH PAGES */
+
+.auth-section{
+    height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.auth-section h2{
+    margin-bottom: 20px;
+}
+
+.auth-section form{
+    width: 350px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.auth-section input{
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+}
