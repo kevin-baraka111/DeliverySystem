@@ -151,3 +151,26 @@ function removeItem(index){
 // RUN FUNCTION
 
 displayCart();
+
+// CHECKOUT FORM
+
+const checkoutForm = document.getElementById("checkout-form");
+
+if(checkoutForm){
+
+    checkoutForm.addEventListener("submit", function(event){
+
+        event.preventDefault();
+
+alert("Order placed successfully!");
+
+// CLEAR CART
+
+localStorage.removeItem("cart");
+
+//REDIRECT
+
+window.location.href = "products.html";
+
+    });
+}
