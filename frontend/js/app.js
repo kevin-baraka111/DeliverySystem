@@ -174,3 +174,80 @@ window.location.href = "products.html";
 
     });
 }
+
+// REGISTER SYSTEM
+
+const registerForm = document.getElementById("register-form");
+
+if(registerForm){
+
+    registerForm.addEventListener("submit", function(event){
+
+        event.preventDefault();
+
+        // GET VALUES
+
+        const name = document.getElementById("register-name").value;
+
+        const email = document.getElementById("register-email").value;
+
+        const password = document.getElementById("register-password").value;
+
+        // CREATE USER OBJECT
+
+        const user = {
+            name,
+            email,
+            password
+        };
+
+        // SAVE USER
+
+        localStorage.setItem("user", JSON.stringify(user));
+
+        alert("Registration successful!");
+
+        // REDIRECT
+
+        window.location.href = "login.html";
+    });
+}
+
+// LOGIN SYSTEM
+
+const loginForm = document.getElementById("login-form");
+
+if(loginForm){
+
+    loginForm.addEventListener("submit", function(event){
+
+        event.preventDefault();
+
+        // GET INPUTS
+
+        const email = document.getElementById("login-email").value;
+
+        const password = document.getElementById("login-password").value;
+
+        // GET SAVED USER
+
+        const savedUser = JSON.parse(localStorage.getItem("user"));
+
+        // VALIDATE
+
+        if(
+            savedUser &&
+            email === savedUser.email &&
+            password === savedUser.password
+        ){
+
+            alert("Login successful!");
+
+            window.location.href = "products.html";
+
+        }else{
+
+            alert("Invalid email or password!");
+        }
+    });
+}
