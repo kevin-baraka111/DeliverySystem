@@ -170,7 +170,7 @@ localStorage.removeItem("cart");
 
 //REDIRECT
 
-window.location.href = "products.html";
+window.location.href = "payment.html";
 
     });
 }
@@ -250,4 +250,69 @@ if(loginForm){
             alert("Invalid email or password!");
         }
     });
+}
+
+// PAYMENT SYSTEM
+
+const paymentForm = document.getElementById("payment-form");
+
+if(paymentForm){
+
+    paymentForm.addEventListener("submit", function(event){
+
+        event.preventDefault();
+
+        // GET PAYMENT METHOD
+
+        const paymentMethod =
+            document.getElementById("payment-method").value;
+
+        // SUCCESS MESSAGE
+
+        alert(
+            "Payment successful using " +
+            paymentMethod.toUpperCase()
+        );
+
+        // CLEAR CART
+
+        localStorage.removeItem("cart");
+
+        // REDIRECT
+
+        window.location.href = "tracking.html";
+    });
+}
+
+// DELIVERY TRACKING SYSTEM
+
+const deliveryStatus =
+    document.getElementById("delivery-status");
+
+if(deliveryStatus){
+
+    // STATUS ARRAY
+
+    const statuses = [
+        "Pending",
+        "Processing",
+        "On The Way",
+        "Delivered"
+    ];
+
+    let currentStatus = 0;
+
+    // CHANGE STATUS EVERY 3 SECONDS
+
+    setInterval(() => {
+
+        currentStatus++;
+
+        if(currentStatus < statuses.length){
+
+            deliveryStatus.innerHTML =
+                statuses[currentStatus];
+        }
+
+    }, 3000);
 }
