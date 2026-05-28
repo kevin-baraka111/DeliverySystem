@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Payment - SmartShop</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+
+    <header>
+      <h1>SmartShop</h1>
+
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+        <a href="cart.html">Cart</a>
+      </nav>
+    </header>
+
+    <!-- PAYMENT SECTION -->
+
+    <section class="payment-section">
+      <h2>Choose Payment Method</h2>
+
+      <form id="payment-form">
+        <!-- PAYMENT METHOD -->
+
+        <select id="payment-method" required>
+          <option value="">Select Payment Method</option>
+
+          <option value="mpesa">M-Pesa</option>
+
+          <option value="card">Debit/Credit Card</option>
+
+          <option value="cash">Cash On Delivery</option>
+        </select>
+
+        <!-- PHONE NUMBER -->
+
+        <input
+          type="text"
+          id="phone-number"
+          placeholder="Enter Phone Number"
+          required
+        />
+
+        <button type="submit">Pay Now</button>
+      </form>
+    </section>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
