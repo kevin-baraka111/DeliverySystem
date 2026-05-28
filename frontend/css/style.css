@@ -212,3 +212,62 @@ button:hover{
 
     border-radius: 5px;
 }
+
+/* PAYMENT PAGE */
+
+.payment-section{
+    height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.payment-section h2{
+    margin-bottom: 20px;
+}
+
+#payment-form{
+    width: 350px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#payment-form select,
+#payment-form input{
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+}
+
+/* TRACKING PAGE */
+
+.tracking-section{
+    height: 80vh;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.tracking-box{
+    background-color: white;
+
+    padding: 40px;
+
+    border-radius: 10px;
+
+    text-align: center;
+
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.tracking-box h3{
+    margin-bottom: 15px;
+}
