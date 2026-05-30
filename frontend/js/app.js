@@ -316,3 +316,120 @@ if(deliveryStatus){
 
     }, 3000);
 }
+
+
+// ADMIN DASHBOARD
+
+const adminForm = document.getElementById("admin-form");
+
+let adminProducts =
+    JSON.parse(localStorage.getItem("adminProducts")) || [];
+
+
+// DISPLAY ADMIN PRODUCTS
+
+function displayAdminProducts(){
+
+    const adminProductsContainer =
+        document.getElementById("admin-products");
+
+    // STOP IF PAGE DOESN'T EXIST
+
+    if(!adminProductsContainer){
+        return;
+    }
+
+    adminProductsContainer.innerHTML = "";
+
+    // LOOP PRODUCTS
+
+    adminProducts.forEach((product, index) => {
+
+        adminProductsContainer.innerHTML += `
+
+        <div class="product-card">
+
+            <img src="${product.image}" alt="Product">
+
+            <h3>${product.name}</h3>
+
+            <p>Ksh ${product.price}</p>
+
+            <button onclick="deleteProduct(${index})">
+                Delete
+            </button>
+
+        </div>
+
+        `;
+    });
+}
+
+
+// ADD PRODUCT
+
+if(adminForm){
+
+    adminForm.addEventListener("submit", function(event){
+
+        event.preventDefault();
+
+        // GET VALUES
+
+        const name =
+            document.getElementById("product-name").value;
+
+        const price =
+            document.getElementById("product-price").value;
+
+        const image =
+            document.getElementById("product-image").value;
+
+        // CREATE PRODUCT OBJECT
+
+        const product = {
+            name,
+            price,
+            image
+        };
+
+        // PUSH PRODUCT
+
+        adminProducts.push(product);
+
+        // SAVE
+
+        localStorage.setItem(
+            "adminProducts",
+            JSON.stringify(adminProducts)
+        );
+
+        // REFRESH DISPLAY
+
+        displayAdminProducts();
+
+        // CLEAR FORM
+
+        adminForm.reset();
+    });
+}
+
+
+// DELETE PRODUCT
+
+function deleteProduct(index){
+
+    adminProducts.splice(index, 1);
+
+    localStorage.setItem(
+        "adminProducts",
+        JSON.stringify(adminProducts)
+    );
+
+    displayAdminProducts();
+}
+
+
+// RUN DISPLAY
+
+displayAdminProducts();
