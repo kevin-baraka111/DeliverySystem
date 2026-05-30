@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - SmartShop</title>
+
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+
+  <body>
+    <!-- HEADER -->
+
+    <header>
+      <h1>Admin Dashboard</h1>
+
+      <nav>
+        <a href="index.html">Home</a>
+        <a href="products.html">Products</a>
+      </nav>
+    </header>
+
+    <!-- ADMIN SECTION -->
+
+    <section class="admin-section">
+      <h2>Add Product</h2>
+
+      <form id="admin-form">
+        <input
+          type="text"
+          id="product-name"
+          placeholder="Product Name"
+          required
+        />
+
+        <input
+          type="number"
+          id="product-price"
+          placeholder="Product Price"
+          required
+        />
+
+        <input
+          type="text"
+          id="product-image"
+          placeholder="Image Path (example: images/shoes.jpg)"
+          required
+        />
+
+        <button type="submit">Add Product</button>
+      </form>
+
+      <!-- PRODUCT LIST -->
+
+      <div id="admin-products"></div>
+    </section>
+
+    <script src="js/app.js"></script>
+  </body>
+</html>
