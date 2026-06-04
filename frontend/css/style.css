@@ -81,7 +81,7 @@ button:hover{
     margin-bottom: 30px;
 }
 
-.product-container{
+#products-container{
     display: flex;
     justify-content: center;
     gap: 20px;
@@ -308,4 +308,47 @@ button:hover{
     flex-wrap: wrap;
     justify-content: center;
     gap: 20px;
+}
+
+/* =========================
+   MOBILE RESPONSIVE DESIGN
+   ========================= */
+
+@media (max-width: 768px){
+
+    header{
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+
+    nav{
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 10px;
+    }
+
+    .product-container,
+    #products-container,
+    #admin-products{
+        flex-direction: column;
+        align-items: center;
+        display: flex;
+        gap: 15px;
+    }
+
+    .product-card{
+        width: 90%;
+        max-width: 350px;
+    }
+
+    #admin-form,
+    #payment-form{
+        width: 90%;
+    }
+
+    .tracking-box{
+        width: 90%;
+    }
 }
