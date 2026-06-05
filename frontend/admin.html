@@ -27,25 +27,31 @@
       <h2>Dashboard Overview</h2>
 
       <div class="dashboard-cards">
-        <div class="dashboard-card">
-          <h3>Products</h3>
+        <div class="dashboard-card products-card">
+          <h3>📦 Products</h3>
           <p id="total-products">0</p>
         </div>
 
-        <div class="dashboard-card">
-          <h3>Orders</h3>
-          <p id="total-orders">8</p>
+        <div class="dashboard-card orders-card">
+          <h3>🛒 Orders</h3>
+          <p id="total-orders">0</p>
         </div>
 
-        <div class="dashboard-card">
-          <h3>Revenue</h3>
-          <p id="total-revenue">KES 15,000</p>
+        <div class="dashboard-card revenue-card">
+          <h3>💰 Revenue</h3>
+          <p id="total-revenue">Ksh 0</p>
         </div>
 
-        <div class="dashboard-card">
-          <h3>Pending Deliveries</h3>
-          <p id="pending-deliveries">3</p>
+        <div class="dashboard-card delivery-card">
+          <h3>🚚 Pending Deliveries</h3>
+          <p id="pending-deliveries">0</p>
         </div>
+      </div>
+
+      <div class="admin-actions">
+        <button onclick="exportProducts()">Export Products</button>
+
+        <button onclick="clearProducts()">Clear All Products</button>
       </div>
 
       <h2>Add Product</h2>
