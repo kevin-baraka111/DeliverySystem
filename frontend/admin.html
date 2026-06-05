@@ -17,12 +17,37 @@
       <nav>
         <a href="index.html">Home</a>
         <a href="products.html">Products</a>
+        <button id="theme-toggle">🌙</button>
       </nav>
     </header>
 
     <!-- ADMIN SECTION -->
 
     <section class="admin-section">
+      <h2>Dashboard Overview</h2>
+
+      <div class="dashboard-cards">
+        <div class="dashboard-card">
+          <h3>Products</h3>
+          <p id="total-products">0</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Orders</h3>
+          <p id="total-orders">8</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Revenue</h3>
+          <p id="total-revenue">KES 15,000</p>
+        </div>
+
+        <div class="dashboard-card">
+          <h3>Pending Deliveries</h3>
+          <p id="pending-deliveries">3</p>
+        </div>
+      </div>
+
       <h2>Add Product</h2>
 
       <form id="admin-form">
@@ -49,8 +74,13 @@
 
         <button type="submit">Add Product</button>
       </form>
+      <br /><br />
 
       <!-- PRODUCT LIST -->
+
+      <h2>Manage Products</h2>
+
+      <input type="text" id="search-product" placeholder="Search product..." />
 
       <div id="admin-products"></div>
     </section>
