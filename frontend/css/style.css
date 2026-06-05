@@ -332,36 +332,32 @@ button:hover{
     gap: 20px;
 }
 
+.admin-actions{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-bottom:30px;
+    flex-wrap:wrap;
+}
+
 /* =========================
    DASHBOARD CARDS
 ========================= */
 
 .dashboard-cards{
-
-    display:flex;
-
-    justify-content:center;
-
-    flex-wrap:wrap;
-
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
     gap:20px;
-
     margin-bottom:40px;
 }
 
 .dashboard-card{
-
-    background-color: var(--card-bg);
-
-    width:220px;
-
+    background:var(--card-bg);
     padding:25px;
-
+    border-radius:15px;
     text-align:center;
-
-    border-radius:10px;
-
-    box-shadow:0 0 10px rgba(0,0,0,0.1);
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+    transition:0.3s;
 }
 
 .dashboard-card h3{
@@ -370,10 +366,47 @@ button:hover{
 }
 
 .dashboard-card p{
-
-    font-size:28px;
-
+    font-size:32px;
     font-weight:bold;
+}
+
+.dashboard-card:hover{
+    transform:translateY(-5px);
+}
+
+.products-card{
+    border-top:5px solid #3498db;
+}
+
+.orders-card{
+    border-top:5px solid #2ecc71;
+}
+
+.revenue-card{
+    border-top:5px solid #f39c12;
+}
+
+.delivery-card{
+    border-top:5px solid #e74c3c;
+}
+
+#admin-form{
+    background:var(--card-bg);
+    padding:25px;
+    border-radius:15px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.1);
+}
+
+.product-card{
+    transition:0.3s;
+}
+
+.product-card:hover{
+    transform:translateY(-5px);
+}
+
+.product-card button{
+    margin:5px;
 }
 
 
@@ -444,18 +477,14 @@ button:hover{
 /*serach admin products*/
 
 #search-product{
-
-    width: 350px;
-
-    display: block;
-
-    margin: 20px auto;
-    
-    padding: 12px;
-
-    border: 1px solid #ccc;
-
-    border-radius: 5px;
+    width:100%;
+    max-width:500px;
+    display:block;
+    margin:20px auto;
+    padding:15px;
+    border-radius:10px;
+    border:1px solid #ccc;
+    font-size:16px;
 }
 
 
