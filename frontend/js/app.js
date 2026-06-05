@@ -325,10 +325,11 @@ const adminForm = document.getElementById("admin-form");
 let adminProducts =
     JSON.parse(localStorage.getItem("adminProducts")) || [];
 
+    let editingIndex = null;
 
 // DISPLAY ADMIN PRODUCTS
 
-function displayAdminProducts(){
+function displayAdminProducts(searchTerm = ""){
 
     const adminProductsContainer =
         document.getElementById("admin-products");
@@ -343,7 +344,18 @@ function displayAdminProducts(){
 
     // LOOP PRODUCTS
 
-    adminProducts.forEach((product, index) => {
+  //filtering products
+
+    const filteredProducts =
+adminProducts.filter(product =>
+
+    product.name
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase())
+);
+
+
+    filteredProducts.forEach((product, index) => {
 
         adminProductsContainer.innerHTML += `
 
@@ -354,6 +366,10 @@ function displayAdminProducts(){
             <h3>${product.name}</h3>
 
             <p>Ksh ${product.price}</p>
+
+            <button onclick="editProduct(${index})">
+              Edit
+            </button>
 
             <button onclick="deleteProduct(${index})">
                 Delete
@@ -393,9 +409,18 @@ if(adminForm){
             image
         };
 
-        // PUSH PRODUCT
+        // PUSH PRODUCT NAD UPDATING PRODUCT WITHOUT DUPLICATING
 
-        adminProducts.push(product);
+        if(editingIndex !== null){
+
+    adminProducts[editingIndex] = product;
+
+    editingIndex = null;
+
+}else{
+
+    adminProducts.push(product);
+}
 
         // SAVE
 
@@ -407,6 +432,7 @@ if(adminForm){
         // REFRESH DISPLAY
 
         displayAdminProducts();
+        updateDashboard();
 
         // CLEAR FORM
 
@@ -414,6 +440,35 @@ if(adminForm){
     });
 }
 
+
+//EDIT PRODUCT
+
+function editProduct(index){
+
+    const product = adminProducts[index];
+
+    document.getElementById("product-name").value =
+        product.name;
+
+    document.getElementById("product-price").value =
+        product.price;
+
+    document.getElementById("product-image").value =
+        product.image;
+
+        //BETTER BUTTON TEXT-- OPTIONAL--
+        document.querySelector(
+    "#admin-form button"
+).textContent = "Update Product";
+
+
+    editingIndex = index;
+
+    document.querySelector(
+    "#admin-form button"
+).textContent = "Add Product";
+
+}
 
 // DELETE PRODUCT
 
@@ -427,6 +482,7 @@ function deleteProduct(index){
     );
 
     displayAdminProducts();
+    updateDashboard();
 }
 
 
@@ -474,3 +530,93 @@ function displayCustomerProducts(){
 }
 
 displayCustomerProducts();
+
+const themeToggle =
+document.getElementById("theme-toggle");
+
+// Load saved theme
+
+if(localStorage.getItem("theme") === "dark"){
+
+    document.body.classList.add("dark-mode");
+
+    themeToggle.textContent = "☀️";
+}
+
+// Toggle theme
+
+themeToggle.addEventListener("click", () => {
+
+    document.body.classList.toggle("dark-mode");
+
+    if(document.body.classList.contains("dark-mode")){
+
+        localStorage.setItem("theme","dark");
+
+        themeToggle.textContent = "☀️";
+
+    }else{
+
+        localStorage.setItem("theme","light");
+
+        themeToggle.textContent = "🌙";
+
+    }
+
+});
+
+function updateDashboard(){
+
+    const products =
+    JSON.parse(localStorage.getItem("adminProducts")) || [];
+
+    const cart =
+    JSON.parse(localStorage.getItem("cart")) || [];
+
+    const user =
+    JSON.parse(localStorage.getItem("user"));
+
+    const totalProducts =
+    document.getElementById("total-products");
+
+    const totalUsers =
+    document.getElementById("total-users");
+
+    const cartItemsCount =
+    document.getElementById("cart-items-count");
+
+    if(totalProducts){
+
+        totalProducts.textContent =
+        products.length;
+    }
+
+    if(totalUsers){
+
+        totalUsers.textContent =
+        user ? 1 : 0;
+    }
+
+    if(cartItemsCount){
+
+        cartItemsCount.textContent =
+        cart.length;
+    }
+}
+
+updateDashboard();
+
+const searchProduct =
+document.getElementById("search-product");
+
+if(searchProduct){
+
+    searchProduct.addEventListener("input", () => {
+
+        displayAdminProducts(
+            searchProduct.value
+        );
+
+    });
+
+}
