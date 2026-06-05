@@ -162,11 +162,9 @@ if(checkoutForm){
 
         event.preventDefault();
 
-alert("Order placed successfully!");
+alert("Proeeding to payment...");
 
 // CLEAR CART
-
-localStorage.removeItem("cart");
 
 //REDIRECT
 
@@ -274,6 +272,42 @@ if(paymentForm){
             paymentMethod.toUpperCase()
         );
 
+
+// ORDER CREATION
+
+const currentCart =
+JSON.parse(localStorage.getItem("cart")) || [];
+
+const orders =
+JSON.parse(localStorage.getItem("orders")) || [];
+
+const newOrder = {
+
+    id: Date.now(),
+
+    items: currentCart,
+
+    total: currentCart.reduce(
+
+        (sum, item) =>
+
+        sum +
+        Number(item.price) *
+        Number(item.quantity),
+
+        0
+    ),
+
+    status: "Pending"
+};
+
+orders.push(newOrder);
+
+localStorage.setItem(
+    "orders",
+    JSON.stringify(orders)
+);
+
         // CLEAR CART
 
         localStorage.removeItem("cart");
@@ -287,11 +321,12 @@ if(paymentForm){
 // DELIVERY TRACKING SYSTEM
 
 const deliveryStatus =
-    document.getElementById("delivery-status");
+document.getElementById("delivery-status");
+
+const trackingMessage =
+document.getElementById("tracking-message");
 
 if(deliveryStatus){
-
-    // STATUS ARRAY
 
     const statuses = [
         "Pending",
@@ -300,23 +335,81 @@ if(deliveryStatus){
         "Delivered"
     ];
 
+    const messages = [
+        "Your order is being prepared.",
+        "Your order is being processed.",
+        "Your package is on the way.",
+        "Order delivered successfully."
+    ];
+
     let currentStatus = 0;
 
-    // CHANGE STATUS EVERY 3 SECONDS
-
-    setInterval(() => {
+    const trackingInterval = setInterval(() => {
 
         currentStatus++;
 
         if(currentStatus < statuses.length){
 
-            deliveryStatus.innerHTML =
-                statuses[currentStatus];
+            deliveryStatus.textContent =
+            statuses[currentStatus];
+
+            trackingMessage.textContent =
+            messages[currentStatus];
+
+        }else{
+
+            clearInterval(trackingInterval);
         }
 
     }, 3000);
 }
 
+//CANCEL ORDER
+
+const cancelOrder =
+document.getElementById("cancel-order");
+
+if(cancelOrder){
+
+    cancelOrder.addEventListener("click", () => {
+
+        const currentStatus =
+        document.getElementById("delivery-status")
+        .textContent;
+
+        if(
+            currentStatus === "On The Way" ||
+            currentStatus === "Delivered"
+        ){
+
+            alert(
+                "Order can no longer be cancelled."
+            );
+
+            return;
+        }
+
+        const confirmCancel =
+        confirm(
+            "Are you sure you want to cancel this order?"
+        );
+
+        if(confirmCancel){
+
+            deliveryStatus.textContent =
+            "Cancelled";
+
+            trackingMessage.textContent =
+            "Your order has been cancelled.";
+
+            localStorage.removeItem("cart");
+
+            cancelOrder.disabled = true;
+
+            alert("Order cancelled successfully.");
+        }
+    });
+}
 
 // ADMIN DASHBOARD
 
@@ -409,7 +502,7 @@ if(adminForm){
             image
         };
 
-        // PUSH PRODUCT NAD UPDATING PRODUCT WITHOUT DUPLICATING
+        // PUSH PRODUCT AND UPDATING PRODUCT WITHOUT DUPLICATING
 
         if(editingIndex !== null){
 
@@ -486,6 +579,35 @@ function deleteProduct(index){
 }
 
 
+//CLEAR PRODUCTS
+
+function clearProducts(){
+
+    const confirmDelete =
+    confirm("Delete all products?");
+
+    if(confirmDelete){
+
+        localStorage.removeItem("adminProducts");
+
+        adminProducts = [];
+
+        displayAdminProducts();
+
+        updateDashboard();
+    }
+}
+
+//EXPORT PRODUCTS
+
+function exportProducts(){
+
+    console.log(adminProducts);
+
+    alert(
+        "Products exported. Check browser console."
+    );
+}
 // RUN DISPLAY
 
 displayAdminProducts();
@@ -570,20 +692,34 @@ function updateDashboard(){
     const products =
     JSON.parse(localStorage.getItem("adminProducts")) || [];
 
-    const cart =
-    JSON.parse(localStorage.getItem("cart")) || [];
-
-    const user =
-    JSON.parse(localStorage.getItem("user"));
+    const orders =
+    JSON.parse(localStorage.getItem("orders")) || [];
 
     const totalProducts =
     document.getElementById("total-products");
 
-    const totalUsers =
-    document.getElementById("total-users");
+    const totalOrders =
+    document.getElementById("total-orders");
 
-    const cartItemsCount =
-    document.getElementById("cart-items-count");
+    const totalRevenue =
+    document.getElementById("total-revenue");
+
+    const pendingDeliveries =
+    document.getElementById("pending-deliveries");
+
+    let revenue = 0;
+
+    orders.forEach(order => {
+
+        revenue += order.total;
+
+    });
+
+    const pendingCount =
+    orders.filter(
+        order =>
+        order.status === "Pending"
+    ).length;
 
     if(totalProducts){
 
@@ -591,16 +727,22 @@ function updateDashboard(){
         products.length;
     }
 
-    if(totalUsers){
+    if(totalOrders){
 
-        totalUsers.textContent =
-        user ? 1 : 0;
+        totalOrders.textContent =
+        orders.length;
     }
 
-    if(cartItemsCount){
+    if(totalRevenue){
 
-        cartItemsCount.textContent =
-        cart.length;
+        totalRevenue.textContent =
+        "Ksh " + revenue;
+    }
+
+    if(pendingDeliveries){
+
+        pendingDeliveries.textContent =
+        pendingCount;
     }
 }
 
