@@ -4,16 +4,38 @@
     box-sizing: border-box;
 }
 
+:root{
+    --body-bg: #f4f4f4;
+    --header-bg: black;
+    --text-color: black;
+    --header-text: white;
+    --card-bg: white;
+    --button-bg: black;
+    --button-text: white;
+}
+
+.dark-mode{
+    --body-bg: #121212;
+    --header-bg: #1e1e1e;
+    --text-color: white;
+    --header-text: white;
+    --card-bg: #2a2a2a;
+    --button-bg: orange;
+    --button-text: black;
+}
+
 body{
     font-family: Arial, sans-serif;
-    background-color: #f4f4f4;
+    background-color: var(--body-bg);
+    color: var(--text-color);
+    transition: 0.3s;
 }
 
 /* HEADER */
 
 header{
-    background-color: black;
-    color: white;
+    background-color: var(--header-bg);
+    color: var(--header-text);
 
     padding: 15px 30px;
 
@@ -23,7 +45,7 @@ header{
 }
 
 nav a{
-    color: white;
+    color: var(--header-text);
     text-decoration: none;
     margin-left: 20px;
 }
@@ -59,8 +81,8 @@ button{
     padding: 12px 25px;
     border: none;
 
-    background-color: black;
-    color: white;
+    background-color: var(--button-bg);
+    color: var(--button-text);
 
     cursor: pointer;
     border-radius: 5px;
@@ -90,7 +112,7 @@ button:hover{
 }
 
 .product-card{
-    background-color: white;
+    background-color: var(--card-bg);
 
     width: 250px;
 
@@ -133,7 +155,7 @@ button:hover{
 }
 
 .cart-item{
-    background-color: white;
+    background-color: var(--card-bg);
 
     padding: 20px;
     margin-bottom: 15px;
@@ -257,7 +279,7 @@ button:hover{
 }
 
 .tracking-box{
-    background-color: white;
+    background-color: var(--card-bg);
 
     padding: 40px;
 
@@ -311,6 +333,51 @@ button:hover{
 }
 
 /* =========================
+   DASHBOARD CARDS
+========================= */
+
+.dashboard-cards{
+
+    display:flex;
+
+    justify-content:center;
+
+    flex-wrap:wrap;
+
+    gap:20px;
+
+    margin-bottom:40px;
+}
+
+.dashboard-card{
+
+    background-color: var(--card-bg);
+
+    width:220px;
+
+    padding:25px;
+
+    text-align:center;
+
+    border-radius:10px;
+
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.dashboard-card h3{
+
+    margin-bottom:15px;
+}
+
+.dashboard-card p{
+
+    font-size:28px;
+
+    font-weight:bold;
+}
+
+
+/* =========================
    MOBILE RESPONSIVE DESIGN
    ========================= */
 
@@ -348,7 +415,48 @@ button:hover{
         width: 90%;
     }
 
+    
     .tracking-box{
         width: 90%;
     }
+
+    .dashboard-card{
+
+    width:90%;
+    max-width:300px;
 }
+
+#search-product{
+
+    width: 90%;
+    margin-top: 30px;
+}
+
+}
+
+/*light and dark mode*/
+
+#theme-toggle{
+    padding: 8px 12px;
+    font-size: 18px;
+}
+
+/*serach admin products*/
+
+#search-product{
+
+    width: 350px;
+
+    display: block;
+
+    margin: 20px auto;
+    
+    padding: 12px;
+
+    border: 1px solid #ccc;
+
+    border-radius: 5px;
+}
+
+
+
