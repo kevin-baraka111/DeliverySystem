@@ -465,6 +465,10 @@ button:hover{
     margin-top: 30px;
 }
 
+#search-customer-product{
+    width: 90%;
+}
+
 }
 
 /*light and dark mode*/
@@ -487,5 +491,16 @@ button:hover{
     font-size:16px;
 }
 
+/* search customer products */
+
+#search-customer-product{
+    width: auto;
+    display:block;
+    margin: 20px auto;
+border: 1px solid #ccc;
+border-radius: 5px;
+padding: 12px;
+font-size: 16px;
+}
 
 

@@ -615,7 +615,7 @@ displayAdminProducts();
 
 // CUSTOMER PRODUCTS PAGE
 
-function displayCustomerProducts(){
+function displayCustomerProducts(searchTerm = ""){
 
     const productsContainer =
         document.getElementById("products-container");
@@ -629,7 +629,14 @@ function displayCustomerProducts(){
 
     productsContainer.innerHTML = "";
 
-    products.forEach((product) => {
+   const filteredProducts = 
+   products.filter(product => 
+    product.name
+    .toLowerCase()
+    .includes(searchTerm.toLowerCase())
+   );
+
+    filteredProducts.forEach((product) => {
 
         productsContainer.innerHTML += `
 
@@ -761,4 +768,24 @@ if(searchProduct){
 
     });
 
+}
+
+
+/* Search Event */
+
+const customerSearch = 
+document.getElementById(
+    "search-customer-product"
+);
+
+if(customerSearch){
+
+    customerSearch.addEventListener(
+        "input", () => {
+
+            displayCustomerProducts(
+                customerSearch.value
+            );
+        }
+    );
 }
