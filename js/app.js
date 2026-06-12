@@ -1,5 +1,8 @@
 // GET CART FROM LOCAL STORAGE
 
+console.log("APP JS LOADED");
+
+
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 
@@ -615,7 +618,9 @@ displayAdminProducts();
 
 // CUSTOMER PRODUCTS PAGE
 
-function displayCustomerProducts(searchTerm = ""){
+    async function displayCustomerProducts(searchTerm = ""){
+
+        console.log("products are here");
 
     const productsContainer =
         document.getElementById("products-container");
@@ -624,38 +629,58 @@ function displayCustomerProducts(searchTerm = ""){
         return;
     }
 
-    const products =
-        JSON.parse(localStorage.getItem("adminProducts")) || [];
+    try{
 
-    productsContainer.innerHTML = "";
+        const response = await fetch(
+            "http://localhost:5000/products"
+        );
 
-   const filteredProducts = 
-   products.filter(product => 
-    product.name
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase())
-   );
+        const products =
+            await response.json();
 
-    filteredProducts.forEach((product) => {
+console.log(products);
 
-        productsContainer.innerHTML += `
+        productsContainer.innerHTML = "";
 
-        <div class="product-card">
+        const filteredProducts =
+            products.filter(product =>
 
-            <img src="${product.image}" alt="${product.name}">
+                product.name
+                .toLowerCase()
+                .includes(
+                    searchTerm.toLowerCase()
+                )
+            );
 
-            <h3>${product.name}</h3>
+        filteredProducts.forEach(product => {
 
-            <p>Ksh ${product.price}</p>
+            productsContainer.innerHTML += `
 
-            <button onclick="addToCart('${product.name}', ${product.price})">
-                Add to Cart
-            </button>
+            <div class="product-card">
 
-        </div>
+                <img src="${product.image}"
+                     alt="${product.name}">
 
-        `;
-    });
+                <h3>${product.name}</h3>
+
+                <p>Ksh ${product.price}</p>
+
+                <button onclick="addToCart('${product.name}', ${product.price})">
+                    Add to Cart
+                </button>
+
+            </div>
+
+            `;
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        productsContainer.innerHTML =
+        "<p>Failed to load products.</p>";
+    }
 }
 
 displayCustomerProducts();
@@ -789,3 +814,7 @@ if(customerSearch){
         }
     );
 }
+
+
+console.log("About to call products function");
+displayCustomerProducts();
