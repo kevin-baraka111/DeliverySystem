@@ -504,3 +504,80 @@ font-size: 16px;
 }
 
 
+/* =========================
+   📦 ORDERS DASHBOARD
+========================= */
+
+#orders-container{
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.order-card{
+    background: var(--card-bg);
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+.order-card:hover{
+    transform: translateY(-3px);
+}
+
+.order-card h3{
+    margin-bottom: 10px;
+}
+
+.order-card p{
+    margin: 5px 0;
+}
+
+.order-card button{
+    margin-top: 10px;
+}
+
+
+/* =========================
+   🧾 ORDER DETAILS PANEL
+========================= */
+
+.order-details{
+    background: var(--card-bg);
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.order-details.hidden{
+    display: none;
+}
+
+.order-details h3{
+    margin-bottom: 15px;
+}
+
+.order-item{
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.order-item:last-child{
+    border-bottom: none;
+}
+
+.status-update{
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status-update button{
+    padding: 8px 12px;
+    border: none;
+    cursor: pointer;
+}

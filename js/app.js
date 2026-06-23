@@ -8,31 +8,31 @@ let cart = JSON.parse(localStorage.getItem("cart")) || [];
 
 // ADD TO CART FUNCTION
 
-function addToCart(productName, productPrice){
+function addToCart(productId, productName, productPrice){
 
-    // CHECK IF PRODUCT EXISTS
+
+     // CHECK IF PRODUCT EXISTS
 
     const existingProduct = cart.find(
-        item => item.name === productName
+        item => item.productId === productId
     );
 
+   
     // IF EXISTS INCREASE QUANTITY
 
     if(existingProduct){
-
         existingProduct.quantity += 1;
-
-    }else{
-
-        // CREATE NEW PRODUCT
-
-        const product = {
+    } else 
+        
+        
+         // CREATE NEW PRODUCT
+         {
+        cart.push({
+            productId,
             name: productName,
             price: productPrice,
             quantity: 1
-        };
-
-        cart.push(product);
+        });
     }
 
     // SAVE TO LOCAL STORAGE
@@ -253,71 +253,67 @@ if(loginForm){
     });
 }
 
-// PAYMENT SYSTEM
 
+// =====================================
+// 🛒 REAL CHECKOUT (BACKEND)  PAYMENT SYSTEM
+// =====================================
+
+// GET FORM FIRST
 const paymentForm = document.getElementById("payment-form");
 
-if(paymentForm){
+// THEN USE IT
+if (paymentForm) {
 
-    paymentForm.addEventListener("submit", function(event){
+    paymentForm.addEventListener("submit", async function (event) {
 
         event.preventDefault();
 
-        // GET PAYMENT METHOD
+        const paymentMethod = document.getElementById("payment-method").value;
+        const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-        const paymentMethod =
-            document.getElementById("payment-method").value;
+// GET CUSTOMER DETAILS
 
-        // SUCCESS MESSAGE
+const customerName =
+document.getElementById("customer-name").value;
 
-        alert(
-            "Payment successful using " +
-            paymentMethod.toUpperCase()
-        );
+const customerEmail =
+document.getElementById("customer-email").value;
 
+const customerPhone =
+document.getElementById("customer-phone").value;
 
-// ORDER CREATION
+const customerAddress =
+document.getElementById("customer-address").value;
 
-const currentCart =
-JSON.parse(localStorage.getItem("cart")) || [];
+        const user = JSON.parse(localStorage.getItem("user"));
 
-const orders =
-JSON.parse(localStorage.getItem("orders")) || [];
+        try {
+            const response = await fetch("http://localhost:5000/checkout", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    customer_name: customerName,
+                    customer_email: customerEmail,
+                    customer_phone: customerPhone,
+                    customer_address: customerAddress,
+                    payment_method: paymentMethod,
+                    items: currentCart
+                })
+            });
 
-const newOrder = {
+            const data = await response.json();
 
-    id: Date.now(),
+            localStorage.setItem("lastOrderId", data.order_id);
+            localStorage.removeItem("cart");
 
-    items: currentCart,
+            window.location.href = "tracking.html";
 
-    total: currentCart.reduce(
-
-        (sum, item) =>
-
-        sum +
-        Number(item.price) *
-        Number(item.quantity),
-
-        0
-    ),
-
-    status: "Pending"
-};
-
-orders.push(newOrder);
-
-localStorage.setItem(
-    "orders",
-    JSON.stringify(orders)
-);
-
-        // CLEAR CART
-
-        localStorage.removeItem("cart");
-
-        // REDIRECT
-
-        window.location.href = "tracking.html";
+        } catch (error) {
+            console.error(error);
+            alert("Checkout failed");
+        }
     });
 }
 
@@ -421,60 +417,73 @@ const adminForm = document.getElementById("admin-form");
 let adminProducts =
     JSON.parse(localStorage.getItem("adminProducts")) || [];
 
-    let editingIndex = null;
+    let editingId = null;
 
 // DISPLAY ADMIN PRODUCTS
 
-function displayAdminProducts(searchTerm = ""){
+async function displayAdminProducts(searchTerm = ""){
 
     const adminProductsContainer =
         document.getElementById("admin-products");
-
-    // STOP IF PAGE DOESN'T EXIST
 
     if(!adminProductsContainer){
         return;
     }
 
-    adminProductsContainer.innerHTML = "";
+    try{
 
-    // LOOP PRODUCTS
+        const response = await fetch(
+            "http://localhost:5000/products"
+        );
 
-  //filtering products
+        const products =
+            await response.json();
 
-    const filteredProducts =
-adminProducts.filter(product =>
+        adminProductsContainer.innerHTML = "";
 
-    product.name
-    .toLowerCase()
-    .includes(searchTerm.toLowerCase())
-);
+        const filteredProducts =
+            products.filter(product =>
 
+                product.name
+                .toLowerCase()
+                .includes(
+                    searchTerm.toLowerCase()
+                )
+            );
 
-    filteredProducts.forEach((product, index) => {
+        filteredProducts.forEach(product => {
 
-        adminProductsContainer.innerHTML += `
+            adminProductsContainer.innerHTML += `
 
-        <div class="product-card">
+            <div class="product-card">
 
-            <img src="${product.image}" alt="Product">
+                <img src="${product.image}" alt="Product">
 
-            <h3>${product.name}</h3>
+                <h3>${product.name}</h3>
 
-            <p>Ksh ${product.price}</p>
+                <p>Ksh ${product.price}</p>
 
-            <button onclick="editProduct(${index})">
-              Edit
-            </button>
-
-            <button onclick="deleteProduct(${index})">
+                <button onclick="deleteProduct(${product.id})">
                 Delete
-            </button>
+                </button>
 
-        </div>
+<button onclick="editProduct(${product.id})">
+                Edit
+                </button>
 
-        `;
-    });
+            </div>
+
+            `;
+
+        });
+
+    }catch(error){
+
+        console.error(error);
+
+        adminProductsContainer.innerHTML =
+        "<p>Failed to load products.</p>";
+    }
 }
 
 
@@ -482,7 +491,7 @@ adminProducts.filter(product =>
 
 if(adminForm){
 
-    adminForm.addEventListener("submit", function(event){
+    adminForm.addEventListener("submit", async function(event){
 
         event.preventDefault();
 
@@ -505,26 +514,68 @@ if(adminForm){
             image
         };
 
-        // PUSH PRODUCT AND UPDATING PRODUCT WITHOUT DUPLICATING
+        if(editingId){
 
-        if(editingIndex !== null){
+            console.log("updtaing product", editingId);
+    await fetch(
 
-    adminProducts[editingIndex] = product;
+        `http://localhost:5000/products/${editingId}`,
 
-    editingIndex = null;
+        {
+            method: "PUT",
+
+            headers: {
+                "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify(
+                product
+            )
+        }
+
+    );
+
+    editingId = null;
+
+    document.querySelector(
+        "#admin-form button"
+    ).textContent =
+    "Add Product";
 
 }else{
 
-    adminProducts.push(product);
+        // PUSH PRODUCT AND UPDATING PRODUCT WITHOUT DUPLICATING**
+
+        try {
+
+    const response = await fetch(
+        "http://localhost:5000/products",
+        {
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                "application/json"
+            },
+
+            body: JSON.stringify(product)
+        }
+    
+    );
+
+    const data =
+        await response.json();
+
+    console.log(data);
+
+} catch(error){
+
+    console.error(error);
+
+    alert("Failed to save product");
 }
-
-        // SAVE
-
-        localStorage.setItem(
-            "adminProducts",
-            JSON.stringify(adminProducts)
-        );
-
+}
         // REFRESH DISPLAY
 
         displayAdminProducts();
@@ -539,46 +590,79 @@ if(adminForm){
 
 //EDIT PRODUCT
 
-function editProduct(index){
+async function editProduct(id){
 
-    const product = adminProducts[index];
+    try{
 
-    document.getElementById("product-name").value =
-        product.name;
+        const response = await fetch(
+            "http://localhost:5000/products"
+        );
 
-    document.getElementById("product-price").value =
-        product.price;
+        const products =
+            await response.json();
 
-    document.getElementById("product-image").value =
-        product.image;
+        const product =
+            products.find(
+                p => p.id === id
+            );
 
-        //BETTER BUTTON TEXT-- OPTIONAL--
+        document.getElementById(
+            "product-name"
+        ).value = product.name;
+
+        document.getElementById(
+            "product-price"
+        ).value = product.price;
+
+        document.getElementById(
+            "product-image"
+        ).value = product.image;
+
+        editingId = id;
+
         document.querySelector(
-    "#admin-form button"
-).textContent = "Update Product";
+            "#admin-form button"
+        ).textContent =
+        "Update Product";
 
+    }catch(error){
 
-    editingIndex = index;
-
-    document.querySelector(
-    "#admin-form button"
-).textContent = "Add Product";
-
+        console.error(error);
+    }
 }
 
 // DELETE PRODUCT
 
-function deleteProduct(index){
+async function deleteProduct(id){
 
-    adminProducts.splice(index, 1);
+    const confirmDelete =
+        confirm("Delete this product?");
 
-    localStorage.setItem(
-        "adminProducts",
-        JSON.stringify(adminProducts)
-    );
+    if(!confirmDelete){
+        return;
+    }
 
-    displayAdminProducts();
-    updateDashboard();
+    try{
+
+        await fetch(
+
+            `http://localhost:5000/products/${id}`,
+
+            {
+                method: "DELETE"
+            }
+
+        );
+
+        displayAdminProducts();
+        updateDashboard();
+
+    }catch(error){
+
+        console.error(error);
+
+        alert("Failed to delete product");
+    }
 }
 
 
@@ -665,9 +749,9 @@ console.log(products);
 
                 <p>Ksh ${product.price}</p>
 
-                <button onclick="addToCart('${product.name}', ${product.price})">
-                    Add to Cart
-                </button>
+                <button onclick="addToCart(${product.id}, '${product.name}', ${product.price})">
+    Add to Cart
+</button>
 
             </div>
 
@@ -719,62 +803,74 @@ themeToggle.addEventListener("click", () => {
 
 });
 
-function updateDashboard(){
+// UPDATE ADMIN DASHBOARD
+async function updateDashboard(){
 
-    const products =
-    JSON.parse(localStorage.getItem("adminProducts")) || [];
+    try{
 
-    const orders =
-    JSON.parse(localStorage.getItem("orders")) || [];
+        const response = await fetch(
+            "http://localhost:5000/products"
+        );
 
-    const totalProducts =
-    document.getElementById("total-products");
+        const products =
+            await response.json();
 
-    const totalOrders =
-    document.getElementById("total-orders");
+        const orders =
+        JSON.parse(localStorage.getItem("orders")) || [];
 
-    const totalRevenue =
-    document.getElementById("total-revenue");
+        const totalProducts =
+        document.getElementById("total-products");
 
-    const pendingDeliveries =
-    document.getElementById("pending-deliveries");
+        const totalOrders =
+        document.getElementById("total-orders");
 
-    let revenue = 0;
+        const totalRevenue =
+        document.getElementById("total-revenue");
 
-    orders.forEach(order => {
+        const pendingDeliveries =
+        document.getElementById("pending-deliveries");
 
-        revenue += order.total;
+        let revenue = 0;
 
-    });
+        orders.forEach(order => {
 
-    const pendingCount =
-    orders.filter(
-        order =>
-        order.status === "Pending"
-    ).length;
+            revenue += order.total;
 
-    if(totalProducts){
+        });
 
-        totalProducts.textContent =
-        products.length;
-    }
+        const pendingCount =
+        orders.filter(
+            order =>
+            order.status === "Pending"
+        ).length;
 
-    if(totalOrders){
+        if(totalProducts){
 
-        totalOrders.textContent =
-        orders.length;
-    }
+            totalProducts.textContent =
+            products.length;
+        }
 
-    if(totalRevenue){
+        if(totalOrders){
 
-        totalRevenue.textContent =
-        "Ksh " + revenue;
-    }
+            totalOrders.textContent =
+            orders.length;
+        }
 
-    if(pendingDeliveries){
+        if(totalRevenue){
 
-        pendingDeliveries.textContent =
-        pendingCount;
+            totalRevenue.textContent =
+            "Ksh " + revenue;
+        }
+
+        if(pendingDeliveries){
+
+            pendingDeliveries.textContent =
+            pendingCount;
+        }
+
+    }catch(error){
+
+        console.error(error);
     }
 }
 
@@ -818,3 +914,149 @@ if(customerSearch){
 
 console.log("About to call products function");
 displayCustomerProducts();
+
+
+
+
+
+// =====================================
+// 🧾 VIEW ORDER DETAILS (PROFESSIONAL)
+// =====================================
+async function viewOrder(orderId) {
+
+    try {
+        const response = await fetch(
+            `http://localhost:5000/orders/${orderId}`
+        );
+
+        const data = await response.json();
+
+        const order = data.order;
+        const items = data.items;
+
+        const container = document.getElementById("order-details");
+
+        // Show panel
+        container.classList.remove("hidden");
+
+        container.innerHTML = `
+            <h3>Order #${order.id}</h3>
+
+            <p><strong>Customer:</strong> ${order.customer_name}</p>
+            <p><strong>Phone:</strong> ${order.customer_phone}</p>
+            <p><strong>Total:</strong> Ksh ${order.total_amount}</p>
+            <p><strong>Status:</strong> ${order.status}</p>
+
+            <hr>
+
+            <h4>Items</h4>
+
+            ${items.map(item => `
+                <div class="order-item">
+                    <p>Product ID: ${item.product_id}</p>
+                    <p>Quantity: ${item.quantity}</p>
+                    <p>Price: Ksh ${item.price_at_purchase}</p>
+                </div>
+            `).join("")}
+
+            <div class="status-update">
+                <button onclick="updateStatus(${order.id}, 'processing')">Processing</button>
+                <button onclick="updateStatus(${order.id}, 'shipped')">Shipped</button>
+                <button onclick="updateStatus(${order.id}, 'delivered')">Delivered</button>
+            </div>
+
+            <button onclick="closeOrderDetails()">Close</button>
+        `;
+
+    } catch (error) {
+        console.error(error);
+        alert("Failed to load order details");
+    }
+}
+
+// =====================================
+// 📦 LOAD ALL ORDERS (ADMIN DASHBOARD)
+// =====================================
+async function displayOrders() {
+
+    const container = document.getElementById("orders-container");
+
+    if (!container) return;
+
+    try {
+        // Fetch orders from backend
+        const response = await fetch("http://localhost:5000/orders");
+
+        const orders = await response.json();
+
+        container.innerHTML = "";
+
+        // Loop through orders and display cards
+        orders.forEach(order => {
+
+            container.innerHTML += `
+                <div class="order-card">
+
+                    <h3>Order #${order.id}</h3>
+
+                    <p><strong>Customer:</strong> ${order.customer_name}</p>
+                    <p><strong>Phone:</strong> ${order.customer_phone}</p>
+                    <p><strong>Total:</strong> Ksh ${order.total_amount}</p>
+                    <p><strong>Status:</strong> ${order.status}</p>
+
+                    <button onclick="viewOrder(${order.id})">
+                        View & Update
+                    </button>
+
+                </div>
+            `;
+        });
+
+    } catch (error) {
+        console.error(error);
+        container.innerHTML = "<p>Failed to load orders</p>";
+    }
+}
+
+// Load orders when page opens
+displayOrders();
+
+
+// =====================================
+// 📊 UPDATE ORDER STATUS
+// =====================================
+async function updateStatus(orderId, status) {
+
+    try {
+        await fetch(
+            `http://localhost:5000/orders/${orderId}/status`,
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ status })
+            }
+        );
+
+        alert("Status updated!");
+
+        displayOrders();
+        viewOrder(orderId);
+
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+// =====================================
+// ❌ CLOSE ORDER DETAILS PANEL
+// =====================================
+function closeOrderDetails() {
+
+    const container = document.getElementById("order-details");
+
+    container.classList.add("hidden");
+
+    container.innerHTML = "";
+}
