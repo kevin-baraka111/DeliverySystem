@@ -198,8 +198,8 @@ app.post("/checkout", async (req, res) => {
 
        const orderResult = await client.query(
     `INSERT INTO orders
-    (customer_name, customer_phone, customer_email, total_amount, payment_method, status, created_at)
-    VALUES ($1, $2, $3, $4, $5, 'pending', NOW())
+    (customer_name, customer_phone, customer_email, total_amount, payment_method, status)
+    VALUES ($1, $2, $3, $4, $5, 'pending')
     RETURNING id`,
     [customer_name, customer_phone, customer_email, total, payment_method]
 );
@@ -207,18 +207,22 @@ app.post("/checkout", async (req, res) => {
         const orderId = orderResult.rows[0].id;
 
         for (let item of items) {
-            await client.query(
-                `INSERT INTO order_items
-                (order_id, product_id, quantity, price_at_purchase)
-                VALUES ($1, $2, $3, $4)`,
-                [
-                    orderId,
-                    null,
-                    item.quantity,
-                    item.price
-                ]
-            );
-        }
+
+    const quantity = Number(item.quantity);
+    const price = Number(item.price);
+
+    await client.query(
+        `INSERT INTO order_items
+        (order_id, product_id, quantity, price_at_purchase)
+        VALUES ($1, $2, $3, $4)`,
+        [
+            orderId,
+            item.productId,   // ✅ FIX IS HERE
+            quantity,
+            price
+        ]
+    );
+}
 
         await client.query("COMMIT");
 
@@ -269,8 +273,9 @@ app.get("/orders", async (req, res) => {
     }
 });
 
+
 // =====================================
-// 🧾 GET SINGLE ORDER DETAILS
+// 🧾 GET SINGLE ORDER DETAILS (ADMIN / TRACKING)
 // =====================================
 app.get("/orders/:id", async (req, res) => {
 
@@ -279,13 +284,19 @@ app.get("/orders/:id", async (req, res) => {
 
         // Get order info
         const orderResult = await pool.query(
-            `SELECT * FROM orders WHERE id = $1`,
+            "SELECT * FROM orders WHERE id = $1",
             [id]
         );
 
-        // Get items in that order
+        // Get order items with product names
         const itemsResult = await pool.query(
-            `SELECT * FROM order_items WHERE order_id = $1`,
+            `SELECT 
+                oi.quantity,
+                oi.price_at_purchase,
+                p.name AS product_name
+             FROM order_items oi
+             LEFT JOIN products p ON oi.product_id = p.id
+             WHERE oi.order_id = $1`,
             [id]
         );
 
@@ -356,36 +367,3 @@ app.put("/orders/:id/status", async (req, res) => {
 });
 
 
-// =====================================
-// 🧾 GET SINGLE ORDER (FOR TRACKING PAGE)
-// =====================================
-app.get("/orders/:id", async (req, res) => {
-
-    try {
-        const { id } = req.params;
-
-        // Get order
-        const order = await pool.query(
-            "SELECT * FROM orders WHERE id = $1",
-            [id]
-        );
-
-        // Get order items
-        const items = await pool.query(
-            "SELECT * FROM order_items WHERE order_id = $1",
-            [id]
-        );
-
-        res.json({
-            order: order.rows[0],
-            items: items.rows
-        });
-
-    } catch (error) {
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to fetch order"
-        });
-    }
-});
