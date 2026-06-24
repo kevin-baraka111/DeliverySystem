@@ -163,7 +163,7 @@ const registerForm = document.getElementById("register-form");
 
 if(registerForm){
 
-    registerForm.addEventListener("submit", function(event){
+    registerForm.addEventListener("submit", async function(event){
 
         event.preventDefault();
 
@@ -183,15 +183,37 @@ if(registerForm){
             password
         };
 
-        // SAVE USER
+        // SAVE USER  
 
-        localStorage.setItem("user", JSON.stringify(user));
+        try {
 
-        alert("Registration successful!");
+    const response = await fetch(
+        "http://localhost:5000/register",
+        {
+            method: "POST",
 
-        // REDIRECT
+            headers: {
+                "Content-Type": "application/json"
+            },
 
-        window.location.href = "login.html";
+            body: JSON.stringify(user)
+        }
+    );
+
+    const data = await response.json();
+
+    alert("Registration successful!");
+
+// REDIRECT
+
+    window.location.href = "login.html";
+
+} catch (error) {
+
+    console.error(error);
+
+    alert("Registration failed");
+}
     });
 }
 
@@ -201,35 +223,60 @@ const loginForm = document.getElementById("login-form");
 
 if(loginForm){
 
-    loginForm.addEventListener("submit", function(event){
+    loginForm.addEventListener("submit", async function(event){
 
         event.preventDefault();
 
         // GET INPUTS
 
-        const email = document.getElementById("login-email").value;
+        const email =
+        document.getElementById("login-email").value;
 
-        const password = document.getElementById("login-password").value;
+        const password =
+        document.getElementById("login-password").value;
 
-        // GET SAVED USER
+        try{
 
-        const savedUser = JSON.parse(localStorage.getItem("user"));
+            const response = await fetch(
+                "http://localhost:5000/login",
+                {
+                    method: "POST",
+                    headers: {
+                        "Content-Type":
+                        "application/json"
+                    },
+                    body: JSON.stringify({
+                        email,
+                        password
+                    })
+                }
+            );
 
-        // VALIDATE
+            const data =
+            await response.json();
 
-        if(
-            savedUser &&
-            email === savedUser.email &&
-            password === savedUser.password
-        ){
+            if(response.ok){
 
-            alert("Login successful!");
+                alert("Login successful!");
 
-            window.location.href = "products.html";
+                localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(data.user)
+                );
 
-        }else{
+                window.location.href =
+                "products.html";
 
-            alert("Invalid email or password!");
+            }else{
+
+                alert(data.message);
+            }
+
+        }catch(error){
+
+            console.error(error);
+
+            alert("Login failed");
         }
     });
 }
@@ -257,6 +304,10 @@ if (paymentForm) {
         const customerPhone = document.getElementById("customer-phone").value;
         const customerAddress = document.getElementById("customer-address").value;
 
+
+            const currentUser =
+JSON.parse(localStorage.getItem("currentUser"));
+
         try {
             const response = await fetch("http://localhost:5000/checkout", {
                 method: "POST",
@@ -264,6 +315,7 @@ if (paymentForm) {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
+                    user_id: currentUser.id,
                     customer_name: customerName,
                     customer_email: customerEmail,
                     customer_phone: customerPhone,
@@ -272,6 +324,7 @@ if (paymentForm) {
                     items: currentCart
                 })
             });
+
 
             const data = await response.json();
 
@@ -301,42 +354,67 @@ document.getElementById("delivery-status");
 const trackingMessage =
 document.getElementById("tracking-message");
 
-if(deliveryStatus){
+if (deliveryStatus) {
+    loadTracking();
+}
 
-    const statuses = [
-        "Pending",
-        "Processing",
-        "On The Way",
-        "Delivered"
-    ];
+async function loadTracking() {
 
-    const messages = [
-        "Your order is being prepared.",
-        "Your order is being processed.",
-        "Your package is on the way.",
-        "Order delivered successfully."
-    ];
+    const orderId =
+    localStorage.getItem("lastOrderId");
 
-    let currentStatus = 0;
+    if (!orderId) return;
 
-    const trackingInterval = setInterval(() => {
+    try {
 
-        currentStatus++;
+        const response = await fetch(
+            `http://localhost:5000/orders/${orderId}`
+        );
 
-        if(currentStatus < statuses.length){
+        const data = await response.json();
 
-            deliveryStatus.textContent =
-            statuses[currentStatus];
+        const status =
+        data.order.status;
 
-            trackingMessage.textContent =
-            messages[currentStatus];
+        deliveryStatus.textContent =
+        status;
 
-        }else{
+        if (status === "pending") {
 
-            clearInterval(trackingInterval);
-        }
+    trackingMessage.textContent =
+    "Your order is being prepared.";
 
-    }, 3000);
+}
+else if (status === "processing") {
+
+    trackingMessage.textContent =
+    "Your order is being processed.";
+
+}
+else if (status === "shipped") {
+
+    trackingMessage.textContent =
+    "Your package is on the way.";
+
+}
+else if (status === "delivered") {
+
+    trackingMessage.textContent =
+    "Order delivered successfully.";
+
+}
+else if (status === "cancelled") {
+
+    trackingMessage.textContent =
+    "Your order has been cancelled.";
+
+}
+
+    } catch (error) {
+
+        console.error(error);
+
+    }
 }
 
 //CANCEL ORDER
@@ -369,20 +447,13 @@ if(cancelOrder){
             "Are you sure you want to cancel this order?"
         );
 
-        if(confirmCancel){
+       if(confirmCancel){
 
-            deliveryStatus.textContent =
-            "Cancelled";
+    const orderId =
+    localStorage.getItem("lastOrderId");
 
-            trackingMessage.textContent =
-            "Your order has been cancelled.";
-
-            localStorage.removeItem("cart");
-
-            cancelOrder.disabled = true;
-
-            alert("Order cancelled successfully.");
-        }
+    updateStatus(orderId, "cancelled");
+}
     });
 }
 
@@ -791,8 +862,12 @@ async function updateDashboard(){
         const products =
             await response.json();
 
-        const orders =
-        JSON.parse(localStorage.getItem("orders")) || [];
+        const ordersResponse = await fetch(
+    "http://localhost:5000/orders"
+);
+
+const orders =
+    await ordersResponse.json();
 
         const totalProducts =
         document.getElementById("total-products");
@@ -808,16 +883,16 @@ async function updateDashboard(){
 
         let revenue = 0;
 
-        orders.forEach(order => {
+orders.forEach(order => {
 
-            revenue += order.total;
+    revenue += Number(order.total_amount);
 
-        });
+});
 
         const pendingCount =
         orders.filter(
             order =>
-            order.status === "Pending"
+            order.status === "pending"
         ).length;
 
         if(totalProducts){
@@ -1017,8 +1092,21 @@ async function updateStatus(orderId, status) {
 
         alert("Status updated!");
 
-        displayOrders();
-        viewOrder(orderId);
+if (deliveryStatus && status === "cancelled") {
+
+    deliveryStatus.textContent = "Cancelled";
+
+    trackingMessage.textContent =
+    "Your order has been cancelled.";
+
+    cancelOrder.disabled = true;
+}
+
+displayOrders();
+
+if (document.getElementById("order-details")) {
+    viewOrder(orderId);
+}
 
     } catch (error) {
         console.error(error);
@@ -1036,3 +1124,74 @@ function closeOrderDetails() {
 
     container.innerHTML = "";
 }
+
+
+
+// =====================================
+// 📦 CUSTOMER ORDER HISTORY
+// =====================================
+
+async function displayMyOrders() {
+
+    const container =
+    document.getElementById("my-orders-container");
+
+    if (!container) return;
+
+    const currentUser =
+    JSON.parse(localStorage.getItem("currentUser"));
+
+    if (!currentUser) {
+
+        container.innerHTML =
+        "<p>Please login first.</p>";
+
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/my-orders/${currentUser.id}`
+        );
+
+        const orders = await response.json();
+
+        container.innerHTML = "";
+
+        orders.forEach(order => {
+
+            container.innerHTML += `
+                <div class="order-card">
+
+                    <h3>Order #${order.id}</h3>
+
+                    <p>
+                        <strong>Total:</strong>
+                        Ksh ${order.total_amount}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        ${order.status}
+                    </p>
+
+                    <p>
+                        <strong>Date:</strong>
+                        ${new Date(order.created_at).toLocaleString()}
+                    </p>
+
+                </div>
+            `;
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        container.innerHTML =
+        "<p>Failed to load orders.</p>";
+    }
+}
+
+displayMyOrders();
