@@ -157,6 +157,40 @@ app.put("/products/:id", async (req, res) => {
     }
 });
 
+// =====================================
+// 📦 GET CUSTOMER ORDER HISTORY
+// =====================================
+
+console.log("MY ORDERS ROUTE REGISTERED");
+
+app.get("/my-orders/:userId", async (req, res) => {
+
+    console.log("MY ORDERS ROUTE HIT");
+
+    try {
+
+        const { userId } = req.params;
+
+        const result = await pool.query(
+            `SELECT *
+             FROM orders
+             WHERE user_id = $1
+             ORDER BY id DESC`,
+            [userId]
+        );
+
+        res.json(result.rows);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Failed to fetch orders"
+        });
+    }
+});
+
 app.listen(PORT, () => {
 
     console.log(
@@ -165,11 +199,84 @@ app.listen(PORT, () => {
 });
 
 
+// REGISTER USER
+
+app.post("/register", async (req, res) => {
+
+    try {
+
+        const { name, email, password } = req.body;
+
+        const result = await pool.query(
+
+            `INSERT INTO users
+            (name, email, password)
+            VALUES ($1, $2, $3)
+            RETURNING id, name, email`,
+
+            [name, email, password]
+
+        );
+
+        res.status(201).json(result.rows[0]);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Registration failed",
+            error: error.message
+        });
+    }
+});
+
+// LOGIN USER
+
+app.post("/login", async (req, res) => {
+
+    console.log("LOGIN ROUTE HIT");
+
+    try {
+
+        const { email, password } = req.body;
+
+        const result = await pool.query(
+            `SELECT * FROM users
+             WHERE email = $1
+             AND password = $2`,
+            [email, password]
+        );
+
+        if (result.rows.length === 0) {
+
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        res.json({
+            message: "Login successful",
+            user: result.rows[0]
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            message: "Login failed",
+            error: error.message
+        });
+    }
+});
+
 //CHECKOUT ROUTE (POST ORDER)
 
 app.post("/checkout", async (req, res) => {
 
     const {
+        user_id,
         customer_name,
         customer_email,
         customer_phone,
@@ -198,10 +305,10 @@ app.post("/checkout", async (req, res) => {
 
        const orderResult = await client.query(
     `INSERT INTO orders
-    (customer_name, customer_phone, customer_email, total_amount, payment_method, status)
-    VALUES ($1, $2, $3, $4, $5, 'pending')
+    (user_id, customer_name, customer_phone, customer_email, total_amount, payment_method, status)
+    VALUES ($1, $2, $3, $4, $5, $6, 'pending')
     RETURNING id`,
-    [customer_name, customer_phone, customer_email, total, payment_method]
+    [user_id, customer_name, customer_phone, customer_email, total, payment_method]
 );
 
         const orderId = orderResult.rows[0].id;
