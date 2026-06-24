@@ -155,26 +155,7 @@ function removeItem(index){
 
 displayCart();
 
-// CHECKOUT FORM
 
-const checkoutForm = document.getElementById("checkout-form");
-
-if(checkoutForm){
-
-    checkoutForm.addEventListener("submit", function(event){
-
-        event.preventDefault();
-
-alert("Proeeding to payment...");
-
-// CLEAR CART
-
-//REDIRECT
-
-window.location.href = "payment.html";
-
-    });
-}
 
 // REGISTER SYSTEM
 
@@ -259,33 +240,22 @@ if(loginForm){
 // =====================================
 
 // GET FORM FIRST
-const paymentForm = document.getElementById("payment-form");
+const paymentForm = document.getElementById("checkout-form");
 
 // THEN USE IT
 if (paymentForm) {
 
     paymentForm.addEventListener("submit", async function (event) {
 
-        event.preventDefault();
+        event.preventDefault(); // 🔥 THIS IS CRITICAL
 
         const paymentMethod = document.getElementById("payment-method").value;
         const currentCart = JSON.parse(localStorage.getItem("cart")) || [];
 
-// GET CUSTOMER DETAILS
-
-const customerName =
-document.getElementById("customer-name").value;
-
-const customerEmail =
-document.getElementById("customer-email").value;
-
-const customerPhone =
-document.getElementById("customer-phone").value;
-
-const customerAddress =
-document.getElementById("customer-address").value;
-
-        const user = JSON.parse(localStorage.getItem("user"));
+        const customerName = document.getElementById("customer-name").value;
+        const customerEmail = document.getElementById("customer-email").value;
+        const customerPhone = document.getElementById("customer-phone").value;
+        const customerAddress = document.getElementById("customer-address").value;
 
         try {
             const response = await fetch("http://localhost:5000/checkout", {
@@ -305,10 +275,16 @@ document.getElementById("customer-address").value;
 
             const data = await response.json();
 
-            localStorage.setItem("lastOrderId", data.order_id);
-            localStorage.removeItem("cart");
 
-            window.location.href = "tracking.html";
+
+
+
+localStorage.setItem("lastOrderId", data.order_id);
+localStorage.removeItem("cart");
+
+
+
+window.location.href = "tracking.html";
 
         } catch (error) {
             console.error(error);
@@ -953,9 +929,9 @@ async function viewOrder(orderId) {
 
             ${items.map(item => `
                 <div class="order-item">
-                    <p>Product ID: ${item.product_id}</p>
-                    <p>Quantity: ${item.quantity}</p>
-                    <p>Price: Ksh ${item.price_at_purchase}</p>
+                    <p><strong>Product:</strong> ${item.product_name || "Unknown Product"}</p>
+<p><strong>Quantity:</strong> ${item.quantity}</p>
+<p><strong>Price:</strong> Ksh ${item.price_at_purchase}</p>
                 </div>
             `).join("")}
 
