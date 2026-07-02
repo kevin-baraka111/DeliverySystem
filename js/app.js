@@ -1051,6 +1051,92 @@ document
     }
 }
 
+
+// =====================================
+// 🧾 VIEW ORDER DETAILS (ADMIN)
+// =====================================
+
+async function viewOrder(orderId) {
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/orders/${orderId}`
+        );
+
+        const data = await response.json();
+
+        const order = data.order;
+        const items = data.items;
+
+        const container =
+        document.getElementById("order-details");
+
+        container.classList.remove("hidden");
+
+        document
+        .getElementById("modal-overlay")
+        .classList.remove("hidden");
+
+        container.innerHTML = `
+            <h3>Order #${order.id}</h3>
+
+            <p><strong>Customer:</strong> ${order.customer_name}</p>
+
+            <p><strong>Phone:</strong> ${order.customer_phone}</p>
+
+            <p><strong>Email:</strong> ${order.customer_email}</p>
+
+            <p><strong>Total:</strong> Ksh ${order.total_amount}</p>
+
+            <p><strong>Status:</strong> ${order.status}</p>
+
+            <hr>
+
+            <h4>Items</h4>
+
+            ${items.map(item => `
+                <div class="order-item">
+
+                    <p><strong>Product:</strong> ${item.product_name || "Unknown Product"}</p>
+
+                    <p><strong>Quantity:</strong> ${item.quantity}</p>
+
+                    <p><strong>Price:</strong> Ksh ${item.price_at_purchase}</p>
+
+                </div>
+            `).join("")}
+
+            <div class="status-update">
+
+                <button onclick="updateStatus(${order.id}, 'processing')">
+                    Processing
+                </button>
+
+                <button onclick="updateStatus(${order.id}, 'shipped')">
+                    Shipped
+                </button>
+
+                <button onclick="updateStatus(${order.id}, 'delivered')">
+                    Delivered
+                </button>
+
+            </div>
+
+            <button onclick="closeOrderDetails()">
+                Close
+            </button>
+        `;
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Failed to load order details");
+
+    }
+}
+
 // =====================================
 // 📦 LOAD ALL ORDERS (ADMIN DASHBOARD)
 // =====================================
