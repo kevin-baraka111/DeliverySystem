@@ -264,8 +264,22 @@ if(loginForm){
                     JSON.stringify(data.user)
                 );
 
-                window.location.href =
-                "products.html";
+                const redirect =
+localStorage.getItem("redirectAfterLogin");
+
+if (redirect) {
+
+    localStorage.removeItem(
+        "redirectAfterLogin"
+    );
+
+    window.location.href = redirect;
+
+} else {
+
+    window.location.href =
+    "products.html";
+}
 
             }else{
 
@@ -971,11 +985,13 @@ displayCustomerProducts();
 
 
 // =====================================
-// 🧾 VIEW ORDER DETAILS (PROFESSIONAL)
+// VIEW CUSTOMER ORDER DETAILS
 // =====================================
-async function viewOrder(orderId) {
+
+async function viewMyOrder(orderId) {
 
     try {
+
         const response = await fetch(
             `http://localhost:5000/orders/${orderId}`
         );
@@ -985,18 +1001,23 @@ async function viewOrder(orderId) {
         const order = data.order;
         const items = data.items;
 
-        const container = document.getElementById("order-details");
+        const container =
+        document.getElementById("order-details");
 
-        // Show panel
         container.classList.remove("hidden");
+
+document
+.getElementById("modal-overlay")
+.classList.remove("hidden");
 
         container.innerHTML = `
             <h3>Order #${order.id}</h3>
 
-            <p><strong>Customer:</strong> ${order.customer_name}</p>
-            <p><strong>Phone:</strong> ${order.customer_phone}</p>
-            <p><strong>Total:</strong> Ksh ${order.total_amount}</p>
-            <p><strong>Status:</strong> ${order.status}</p>
+            <p><strong>Total:</strong>
+            Ksh ${order.total_amount}</p>
+
+            <p><strong>Status:</strong>
+            ${order.status}</p>
 
             <hr>
 
@@ -1004,24 +1025,29 @@ async function viewOrder(orderId) {
 
             ${items.map(item => `
                 <div class="order-item">
-                    <p><strong>Product:</strong> ${item.product_name || "Unknown Product"}</p>
-<p><strong>Quantity:</strong> ${item.quantity}</p>
-<p><strong>Price:</strong> Ksh ${item.price_at_purchase}</p>
+
+                    <p><strong>Product:</strong>
+                    ${item.product_name || "Unknown Product"}</p>
+
+                    <p><strong>Quantity:</strong>
+                    ${item.quantity}</p>
+
+                    <p><strong>Price:</strong>
+                    Ksh ${item.price_at_purchase}</p>
+
                 </div>
             `).join("")}
 
-            <div class="status-update">
-                <button onclick="updateStatus(${order.id}, 'processing')">Processing</button>
-                <button onclick="updateStatus(${order.id}, 'shipped')">Shipped</button>
-                <button onclick="updateStatus(${order.id}, 'delivered')">Delivered</button>
-            </div>
-
-            <button onclick="closeOrderDetails()">Close</button>
+            <button onclick="closeOrderDetails()">
+                Close
+            </button>
         `;
 
     } catch (error) {
+
         console.error(error);
-        alert("Failed to load order details");
+
+        alert("Failed to load order details.");
     }
 }
 
@@ -1118,11 +1144,16 @@ if (document.getElementById("order-details")) {
 // =====================================
 function closeOrderDetails() {
 
-    const container = document.getElementById("order-details");
+    const container =
+    document.getElementById("order-details");
 
     container.classList.add("hidden");
 
     container.innerHTML = "";
+
+    document
+    .getElementById("modal-overlay")
+    .classList.add("hidden");
 }
 
 
@@ -1143,11 +1174,18 @@ async function displayMyOrders() {
 
     if (!currentUser) {
 
-        container.innerHTML =
-        "<p>Please login first.</p>";
+    container.innerHTML = `
+        <div class="login-message">
+            <p>Please login to view your orders.</p>
 
-        return;
-    }
+            <br>
+
+            <button onclick="goToLogin()"> Login </button>
+        </div>
+    `;
+
+    return;
+}
 
     try {
 
@@ -1181,6 +1219,10 @@ async function displayMyOrders() {
                         ${new Date(order.created_at).toLocaleString()}
                     </p>
 
+                    <button onclick="viewMyOrder(${order.id})"> 
+                    View Details
+</button>
+
                 </div>
             `;
         });
@@ -1195,3 +1237,47 @@ async function displayMyOrders() {
 }
 
 displayMyOrders();
+
+
+// ===========================
+// LOGOUT SYSTEM
+// ===========================
+
+const logoutBtn = document.getElementById("logout-btn");
+
+if (logoutBtn) {
+
+    logoutBtn.addEventListener("click", () => {
+
+        localStorage.removeItem("currentUser");
+
+        alert("Logged out successfully!");
+
+        window.location.href = "login.html";
+
+    });
+
+}
+
+// =====================================
+// REDIRECT TO LOGIN
+// =====================================
+
+function goToLogin() {
+
+    localStorage.setItem(
+        "redirectAfterLogin",
+        "my-orders.html"
+    );
+
+    window.location.href = "login.html";
+}
+
+
+const overlay = document.getElementById("modal-overlay");
+
+if (overlay) {
+
+    overlay.addEventListener("click", closeOrderDetails);
+
+}
